@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Text, View, TouchableOpacity, Alert } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import withHeader from '../../helpers/withHeader';
-import { storeData } from '../../hooks/dataStoreHook';
+import { storeData } from '../../utils/dataStore';
 import Strings from '../../i18n/en';
 import { updateStatus } from '../AuthScreen/Util';
 import { HomeViewStyle } from './styles';

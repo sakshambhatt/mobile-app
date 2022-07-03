@@ -5,7 +5,7 @@ import HomeScreen from '../src/screens/HomeScreen/HomeScreen';
 import Strings from '../src/i18n/en';
 import { loggedInUserType } from '../src/context/type';
 import { AuthContext } from '../src/context/AuthContext';
-import { storeData } from '../src/hooks/dataStoreHook';
+import { storeData } from '../src/utils/dataStore';
 
 const loggedInUserDataDummy = {
   id: '123abc',
