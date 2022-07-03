@@ -1,13 +1,13 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage/jest/async-storage-mock';
+// import AsyncStorage from '@react-native-async-storage/async-storage/jest/async-storage-mock';
 import HomeScreen from '../src/screens/HomeScreen/HomeScreen';
 import Strings from '../src/i18n/en';
 import { loggedInUserType } from '../src/context/type';
 import { AuthContext } from '../src/context/AuthContext';
-import { storeData } from '../src/utils/dataStore';
+// import { storeData } from '../src/utils/dataStore';
 
-const loggedInUserDataDummy = {
+const dummyLoggedInUserData = {
   id: '123abc',
   name: 'Jane Doe',
   profileUrl: 'https://via.placeholder.com/600/d32776',
@@ -45,7 +45,7 @@ describe('renders correctly', () => {
   test('renders I am OOO when loggedInUserData !null & status = OOO', () => {
     const { getByText } = renderHomeScreen({
       initialLoggedInUserData: {
-        ...loggedInUserDataDummy,
+        ...dummyLoggedInUserData,
         status: Strings.OUT_OF_OFFICE,
       },
     });
@@ -54,7 +54,7 @@ describe('renders correctly', () => {
   test('renders I am Idle when loggedInUserData !null & status = Idle', () => {
     const { getByText } = renderHomeScreen({
       initialLoggedInUserData: {
-        ...loggedInUserDataDummy,
+        ...dummyLoggedInUserData,
         status: Strings.IDLE,
       },
     });
@@ -63,7 +63,7 @@ describe('renders correctly', () => {
   test('renders I am doing a task when loggedInUserData !null & status = Active', () => {
     const { getByText } = renderHomeScreen({
       initialLoggedInUserData: {
-        ...loggedInUserDataDummy,
+        ...dummyLoggedInUserData,
         status: Strings.ACTIVE,
       },
     });
@@ -71,22 +71,8 @@ describe('renders correctly', () => {
   });
 });
 
-describe('storeData', () => {
-  test('storeData name, value stores in AsyncStorage', async () => {
-    await storeData('userData', JSON.stringify(loggedInUserDataDummy));
-    expect(AsyncStorage.setItem).toBeCalledWith(
-      'userData',
-      JSON.stringify(loggedInUserDataDummy),
-    );
-    const res = await AsyncStorage.getItem('userData');
-    expect(res).toMatch(JSON.stringify(loggedInUserDataDummy));
-  });
-});
-
 describe('changeStatus', () => {
-  test.todo(
-    'when status != OOO, changeStatus OOO, makes loggedInUserData.status OOO',
-  );
+  test('when status != OOO, changeStatus OOO, makes loggedInUserData.status OOO', async () => {});
   test.todo(
     'when status != Idle, changeStatus Idle, makes loggedInUserData.status Idle',
   );
@@ -95,7 +81,7 @@ describe('changeStatus', () => {
   );
 });
 
-describe('changeStatus operations', () => {
+describe('HomeScreen user operations', () => {
   test.todo('if status idle, change status to active');
   test.todo('if status active, change status to idle');
   test.todo('if status !OOO, mark yourself as OOO');
