@@ -1,11 +1,13 @@
 import React from 'react';
-import { render } from '@testing-library/react-native';
-// import AsyncStorage from '@react-native-async-storage/async-storage/jest/async-storage-mock';
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import HomeScreen from '../src/screens/HomeScreen/HomeScreen';
 import Strings from '../src/i18n/en';
 import { loggedInUserType } from '../src/context/type';
 import { AuthContext } from '../src/context/AuthContext';
-// import { storeData } from '../src/utils/dataStore';
+import axios from 'axios';
+
+jest.mock('axios');
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 const dummyLoggedInUserData = {
   id: '123abc',
@@ -71,19 +73,72 @@ describe('renders correctly', () => {
   });
 });
 
-describe('changeStatus', () => {
-  test('when status != OOO, changeStatus OOO, makes loggedInUserData.status OOO', async () => {});
-  test.todo(
-    'when status != Idle, changeStatus Idle, makes loggedInUserData.status Idle',
-  );
-  test.todo(
-    'when status !=Active, changeStatus Active, makes loggedInUserData.status Active',
-  );
-});
-
 describe('HomeScreen user operations', () => {
-  test.todo('if status idle, change status to active');
-  test.todo('if status active, change status to idle');
-  test.todo('if status !OOO, mark yourself as OOO');
-  test.todo('if status OOO, mark yourself active');
+  test('when status idle, change status to active', async () => {
+    const { getByText } = renderHomeScreen({
+      initialLoggedInUserData: {
+        ...dummyLoggedInUserData,
+        status: Strings.IDLE,
+      },
+    });
+    getByText(Strings.Idle_Text);
+    const changeStatusBtn = getByText(Strings.ActiveBtn_Text);
+
+    mockedAxios.patch.mockResolvedValue({
+      config: { data: { status: Strings.ACTIVE } },
+    });
+    fireEvent.press(changeStatusBtn);
+    await waitFor(() => getByText(Strings.Active_Text));
+  });
+
+  test('when status ooo, mark yourself as active again', async () => {
+    const { getByText } = renderHomeScreen({
+      initialLoggedInUserData: {
+        ...dummyLoggedInUserData,
+        status: Strings.OUT_OF_OFFICE,
+      },
+    });
+    getByText(Strings.OOOStatus_Text);
+    const changeStatusBtn = getByText(Strings.OOOBtn2_Text);
+
+    mockedAxios.patch.mockResolvedValue({
+      config: { data: { status: Strings.ACTIVE } },
+    });
+    fireEvent.press(changeStatusBtn);
+    await waitFor(() => getByText(Strings.Active_Text));
+  });
+
+  test('if status active, change status to idle', async () => {
+    const { getByText } = renderHomeScreen({
+      initialLoggedInUserData: {
+        ...dummyLoggedInUserData,
+        status: Strings.ACTIVE,
+      },
+    });
+    getByText(Strings.Active_Text);
+    const changeStatusBtn = getByText(Strings.IdleBtn_Text);
+
+    mockedAxios.patch.mockResolvedValue({
+      config: { data: { status: Strings.IDLE } },
+    });
+    fireEvent.press(changeStatusBtn);
+    await waitFor(() => getByText(Strings.Idle_Text));
+  });
+
+  test('if status !OOO, mark yourself as OOO', async () => {
+    const { getByText } = renderHomeScreen({
+      initialLoggedInUserData: {
+        ...dummyLoggedInUserData,
+        status: Strings.ACTIVE,
+      },
+    });
+    getByText(Strings.Active_Text);
+    const changeStatusBtn = getByText(Strings.OOOBtn1_Text);
+
+    mockedAxios.patch.mockResolvedValue({
+      config: { data: { status: Strings.OUT_OF_OFFICE } },
+    });
+    fireEvent.press(changeStatusBtn);
+    await waitFor(() => getByText(Strings.OOOStatus_Text));
+  });
 });

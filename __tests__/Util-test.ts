@@ -66,12 +66,12 @@ describe('updateStatus util', () => {
 
   test('passes url to get changed status', async () => {
     mockedAxios.patch.mockResolvedValue({
-      config: { data: { status: Strings.Active_Text } },
+      config: { data: { status: Strings.ACTIVE } },
     });
 
     try {
-      const res = await updateStatus(Strings.Active_Text);
-      expect(res).toEqual(Strings.Active_Text);
+      const res = await updateStatus(Strings.ACTIVE);
+      expect(res).toEqual(Strings.ACTIVE);
     } catch (err) {}
   });
 
