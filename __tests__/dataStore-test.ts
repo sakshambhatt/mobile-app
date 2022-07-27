@@ -32,7 +32,6 @@ describe('getData', () => {
     );
     const res = await getData('userData');
     expect(AsyncStorage.getItem).toBeCalledWith('userData');
-    console.log(res);
     expect(res).toMatchObject(dummyLoggedInUserData);
   });
 });
