@@ -12,25 +12,28 @@ const HomeScreen = () => {
 
   const { loggedInUserData, setLoggedInUserData } = useContext(AuthContext);
 
-  const changeStatus = (status: string) => {
-    setLoader(true);
-    loggedInUserData &&
-      updateStatus(status)
-        .then(() => {
-          setLoggedInUserData({
+  const changeStatus = async (status: string) => {
+    if (loggedInUserData) {
+      setLoader(true);
+      try {
+        await updateStatus(status);
+        setLoggedInUserData({
+          ...loggedInUserData,
+          status: status,
+        });
+        await storeData(
+          'userData',
+          JSON.stringify({
             ...loggedInUserData,
             status: status,
-          });
-          storeData(
-            'userData',
-            JSON.stringify({
-              ...loggedInUserData,
-              status: status,
-            }),
-          );
-        })
-        .catch((err) => Alert.alert(err))
-        .finally(() => setLoader(false));
+          }),
+        );
+      } catch (err: any) {
+        Alert.alert(err.toString());
+      } finally {
+        setLoader(false);
+      }
+    }
   };
 
   const renderScreen = () => {
