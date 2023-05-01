@@ -3,26 +3,20 @@ import { Text, View, TouchableOpacity, Image, ScrollView } from 'react-native';
 import Strings from '../../i18n/en';
 import { AuthViewStyle } from './styles';
 import { AuthScreenButton } from './Button';
-import { OtpModal } from './OtpModal';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
+import { QrScannerModal } from '../../components/QrScannerModal';
 
 const AuthScreen = () => {
   // const { setLoggedInUserData } = useContext(AuthContext);
   // const [githubView, setGithubView] = useState<boolean>(false);
-  const [otpCode, setOtpCode] = useState<string>('');
-  const [otpModalVisible, setOtpModalVisible] = useState<boolean>(false);
+  const [isQrScannerOpen, setIsQrScannerOpen] = useState(false);
   // const [addressbarURL, setAdressbarURL] = useState<String>('');
   // const [loading, setLoading] = useState(false);
   // const [key, setKey] = useState(1);
 
-  const closeModal = () => {
-    setOtpModalVisible(false);
-    setOtpCode('');
-  };
-  const openModal = () => setOtpModalVisible(true);
-  const setCode = (code: string) => setOtpCode(code);
-  //TODO: add to constants
-  const maxLength = 4;
+  const openQrScanner = () => setIsQrScannerOpen(true);
+  const closeQrScanner = () => setIsQrScannerOpen(false);
+
   const handleSignIn = () => {
     // NOTE: toast until sign in with Github is implemented
     Toast.show({
@@ -62,19 +56,17 @@ const AuthScreen = () => {
             </View>
           </TouchableOpacity>
         </View>
-        <AuthScreenButton text={Strings.SIGN_IN_WITH_WEB} onPress={openModal} />
-      </View>
-      {otpModalVisible && (
-        <OtpModal
-          title={Strings.ENTER_4_DIGIT_OTP}
-          testId="otpModal"
-          visible={otpModalVisible}
-          code={otpCode}
-          maxLength={maxLength}
-          setCode={setCode}
-          closeModal={closeModal}
+        <AuthScreenButton
+          text={Strings.SIGN_IN_WITH_QR}
+          onPress={openQrScanner}
         />
-      )}
+      </View>
+
+      <QrScannerModal
+        testId="qr-scanner"
+        visible={isQrScannerOpen}
+        closeModal={closeQrScanner}
+      />
     </ScrollView>
   );
 };
