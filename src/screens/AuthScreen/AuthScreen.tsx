@@ -64,7 +64,7 @@ const AuthScreen = () => {
 
       <QrScannerModal
         testId="qr-scanner"
-        visible={isQrScannerOpen}
+        isQrScannerOpen={isQrScannerOpen}
         closeModal={closeQrScanner}
       />
     </ScrollView>

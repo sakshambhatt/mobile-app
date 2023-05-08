@@ -1,39 +1,52 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, StyleSheet, Vibration, View } from 'react-native';
+import {
+  Modal,
+  StyleSheet,
+  Vibration,
+  View,
+  Text,
+  Pressable,
+} from 'react-native';
 import { Camera, useCameraDevices } from 'react-native-vision-camera';
 import { useScanBarcodes, BarcodeFormat } from 'vision-camera-code-scanner';
 import Toast from 'react-native-toast-message';
 import Colors from '../../constants/colors/Colors';
+import { useDeviceName, useManufacturer } from 'react-native-device-info';
 
 type QrScannerModalProps = {
   testId: string;
-  visible: boolean;
+  isQrScannerOpen: boolean;
   closeModal: () => void;
 };
 
 export function QrScannerModal({
   testId,
-  visible,
+  isQrScannerOpen,
   closeModal,
 }: QrScannerModalProps) {
   const [hasPermission, setHasPermission] = useState(false);
   const devices = useCameraDevices();
   const device = devices.back;
   const [frameProcessor, barcodes] = useScanBarcodes([BarcodeFormat.QR_CODE]);
-
   const scannedCode = barcodes[0]?.displayValue;
+  const isCameraViewOpen = device != null && hasPermission && !scannedCode;
 
+  const deviceNameInfo = useDeviceName();
+  const manufacturereInfo = useManufacturer();
+
+  // Note: To get camera permission for QR scanner
   useEffect(() => {
     (async () => {
-      if (visible) {
+      if (isQrScannerOpen) {
         const status = await Camera.requestCameraPermission();
         setHasPermission(status === 'authorized');
       }
     })();
-  }, [visible]);
+  }, [isQrScannerOpen]);
 
+  // Note: To perform side effects once qr code is scanned successfully
   useEffect(() => {
-    if (visible && scannedCode !== undefined) {
+    if (isQrScannerOpen && scannedCode !== undefined) {
       Vibration.vibrate();
 
       Toast.show({
@@ -45,31 +58,48 @@ export function QrScannerModal({
         onPress: () => Toast.hide(),
       });
 
-      closeModal();
+      // TODO: Post API call to send device info & scanned code
     }
-  }, [closeModal, scannedCode, visible]);
+  }, [closeModal, scannedCode, isQrScannerOpen]);
 
   return (
     <Modal
       transparent
       testID={testId}
-      visible={visible}
+      visible={isQrScannerOpen}
       animationType="slide"
       onRequestClose={closeModal}
     >
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
-          {device != null && hasPermission ? (
+          {isCameraViewOpen ? (
+            <Camera
+              style={StyleSheet.absoluteFill}
+              device={device}
+              isActive={true}
+              frameProcessor={frameProcessor}
+              frameProcessorFps={5}
+            />
+          ) : (
             <>
-              <Camera
-                style={StyleSheet.absoluteFill}
-                device={device}
-                isActive={true}
-                frameProcessor={frameProcessor}
-                frameProcessorFps={5}
-              />
+              <Text style={{ color: 'black', marginVertical: 10 }}>
+                Device name:
+                {` ${manufacturereInfo.result.toUpperCase()} - ${
+                  deviceNameInfo.result
+                }`}
+              </Text>
+              <Pressable
+                style={{
+                  backgroundColor: Colors.Primary_Color,
+                  paddingVertical: 10,
+                  paddingHorizontal: 20,
+                  marginVertical: 10,
+                }}
+              >
+                <Text style={{ color: 'white' }}>Get status</Text>
+              </Pressable>
             </>
-          ) : null}
+          )}
         </View>
       </View>
     </Modal>
@@ -81,12 +111,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.Primary_Color,
+    backgroundColor: 'white',
   },
   modalView: {
     height: '50%',
     width: '100%',
-    backgroundColor: Colors.Primary_Color,
+    backgroundColor: 'white',
     alignItems: 'center',
     paddingTop: 20,
   },
