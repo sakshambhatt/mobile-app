@@ -1,3 +1,4 @@
+import { sendDeviceInfo } from './Util';
 import axios from 'axios';
 import { urls } from '../../constants/appConstant/url';
 
@@ -44,6 +45,20 @@ export const updateMarkYourSelfAs_ = async (markStatus: string) => {
   );
 
   return res.data.status;
+};
+
+export const userDeviceInfo = async ({
+  userId,
+  deviceInfo,
+}: {
+  userId: string;
+  deviceInfo: string;
+}) => {
+  const { data } = await axios.post(`${urls.API_ENDPOINT}userDeviceInfo`, {
+    userId,
+    deviceInfo,
+  });
+  return data;
 };
 
 export const isValidTextInput = (code: string) =>

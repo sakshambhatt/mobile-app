@@ -12,6 +12,7 @@ import { useScanBarcodes, BarcodeFormat } from 'vision-camera-code-scanner';
 import Toast from 'react-native-toast-message';
 import Colors from '../../constants/colors/Colors';
 import { useDeviceName, useManufacturer } from 'react-native-device-info';
+import { sendDeviceInfo, userDeviceInfo } from '../../screens/AuthScreen/Util';
 
 type QrScannerModalProps = {
   testId: string;
@@ -33,6 +34,10 @@ export function QrScannerModal({
 
   const deviceNameInfo = useDeviceName();
   const manufacturereInfo = useManufacturer();
+
+  const deviceInfo = `${manufacturereInfo.result.toUpperCase()} - ${
+    deviceNameInfo.result
+  }`;
 
   // Note: To get camera permission for QR scanner
   useEffect(() => {
@@ -59,8 +64,19 @@ export function QrScannerModal({
       });
 
       // TODO: Post API call to send device info & scanned code
+      (async () => {
+        try {
+          userDeviceInfo({
+            userId: scannedCode,
+            deviceInfo,
+          });
+          // TODO: Toast showing success, asking to allow
+        } catch (err) {
+          // TODO: Toast showing error
+        }
+      })();
     }
-  }, [closeModal, scannedCode, isQrScannerOpen]);
+  }, [deviceInfo, isQrScannerOpen, scannedCode]);
 
   return (
     <Modal
@@ -84,9 +100,7 @@ export function QrScannerModal({
             <>
               <Text style={{ color: 'black', marginVertical: 10 }}>
                 Device name:
-                {` ${manufacturereInfo.result.toUpperCase()} - ${
-                  deviceNameInfo.result
-                }`}
+                {` ${deviceInfo}`}
               </Text>
               <Pressable
                 style={{
